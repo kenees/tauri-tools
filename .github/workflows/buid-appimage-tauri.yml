@@ -54,7 +54,7 @@ jobs:
           name: tauri-appimage
           path: src-tauri/target/release/bundle/appimage/*.AppImage
 
-      - name: Debug: List all bundle outputs
+      - name: Debug List all bundle outputs
         run: |
           find src-tauri/target/release/bundle -type f
       - name: Test AppImage launch
