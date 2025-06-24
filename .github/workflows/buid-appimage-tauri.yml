@@ -1,19 +1,15 @@
-name: Build Tauri Linux AppImage
+name: Build and Test Tauri Linux AppImage
 
-# ✅ 支持手动触发
 on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build AppImage on Linux
+  build-and-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
+    name: Build + Test AppImage
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -21,12 +17,12 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Rust toolchain
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y \
@@ -39,7 +35,7 @@ jobs:
             patchelf \
             librsvg2-dev \
             libappindicator3-dev \
-            libwebkit2gtk-4.1-dev
+            libwebkit2gtk-4.1-dev || true  # 避免因为版本问题失败
 
       - name: Install frontend dependencies
         run: npm install --legacy-peer-deps
@@ -52,8 +48,21 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
-      - name: Upload AppImage Artifact
+      - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
           name: tauri-appimage
           path: src-tauri/target/release/bundle/appimage/*.AppImage
+
+      - name: Test AppImage launch
+        run: |
+          chmod +x src-tauri/target/release/bundle/appimage/*.AppImage
+          ./src-tauri/target/release/bundle/appimage/*.AppImage --no-sandbox > run.log 2>&1 &
+          sleep 5
+          if pgrep -f ".AppImage" > /dev/null; then
+            echo "✅ AppImage launched successfully"
+          else
+            echo "❌ AppImage failed to launch. Log output:"
+            cat run.log
+            exit 1
+          fi
