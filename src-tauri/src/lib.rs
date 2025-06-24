@@ -1,5 +1,6 @@
 mod jwt;
 mod logcat;
+mod ble;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -18,6 +19,7 @@ pub fn run() {
             jwt::decode_jwt,
             logcat::list_devices,
             logcat::start_logcat,
+            ble::scan_devices,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

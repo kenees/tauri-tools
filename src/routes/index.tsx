@@ -5,6 +5,7 @@ import Layout from "../pages/Layout";
 import Jwt from "@/pages/Jwt";
 import Logcat from "@/pages/Logcat";
 import Terminal from  "@/pages/Terminal"
+import Ble from "@/pages/Ble";
 
 export default () => {
   return (
@@ -16,6 +17,7 @@ export default () => {
           <Route path="/jwt" element={<Jwt />} />
           <Route path="/logcat" element={<Logcat />} />
           <Route path="/terminal" element={<Terminal />} />
+          <Route path="/ble" element={<Ble />} />
         </Route>
       </Routes>
     </BrowserRouter>
