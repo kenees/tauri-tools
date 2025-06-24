@@ -42,7 +42,7 @@ jobs:
             libwebkit2gtk-4.1-dev
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Tauri App (AppImage)
         uses: tauri-apps/tauri-action@v0
