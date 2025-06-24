@@ -22,7 +22,7 @@ const list = [
   },
   {
     id: 3,
-    path: '/termainal',
+    path: '/terminal',
     icon: iter,
     title: 'Terminal',
     padding: 'p-[5px]'

@@ -41,7 +41,10 @@ export default () => {
       <div className="w-[200px] h-[100vh] flex">
         <div className="h-full flex flex-col p-2.5">
           <div className="h-12 pl-4 flex items-center">
-            <LogoSvg className="dark:fill-amber-50 fill-zinc-950 w-9 h-9" />
+            <LogoSvg 
+              // @ts-ignore
+              className="dark:fill-amber-50 fill-zinc-950 w-9 h-9"
+             />
             <span className="font-bold text-xl mt-[-6px]">Tool Box</span>
           </div>
           <ScrollShadow hideScrollBar visibility="right" style={{ flex: 1, overflowY: "scroll" }}>

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   ArrowPathIcon,
   BarsArrowDownIcon,
@@ -281,7 +281,7 @@ interface ViewerProps {
 
 function VirtalLogViewer({ logs }: ViewerProps) {
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
 
   const filteredLogs = query
     ? logs.filter((line) =>

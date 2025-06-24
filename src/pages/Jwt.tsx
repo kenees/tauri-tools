@@ -45,7 +45,7 @@ async function encodeJWT(payload: any, secret: any, algorithm = "HS256") {
   };
 
   // 2. Base64Url 编码 Header 和 Payload
-  const base64UrlEncode = (str: string) => {
+  const base64UrlEncode = (str: any) => {
     return btoa(JSON.stringify(str))
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
@@ -145,7 +145,7 @@ export default () => {
 
 function Decoder() {
   const [token, setToken] = useState<string | null>(null);
-  const [tips1, setTips1] = useState("Valid JWT");
+  // const [tips1, setTips1] = useState("Valid JWT");
   const [tips2, setTips2] = useState<string | null>(null);
   const [tips3, setTips3] = useState<string | null>(null);
 
@@ -160,6 +160,7 @@ function Decoder() {
     // 解码
     encodeJWT(
       {
+        //@ts-ignore
         ...(payload ?? {}),
       },
       decodeSecret
@@ -179,7 +180,7 @@ function Decoder() {
       });
   }, [token, payload, decodeSecret]);
 
-  const handleDecode = async (token: string, payload: any) => {
+  const handleDecode = async (token: string) => {
     try {
       setToken(token);
       const [headerBase64, payloadBase64, signature] = token.split(".");
@@ -234,7 +235,7 @@ function Decoder() {
                 size="lg"
                 variant="flat"
                 className="w-full rounded-none! flex-1 h-full!"
-                onChange={(e) => handleDecode(e.target.value, payload)}
+                onChange={(e) => handleDecode(e.target.value)}
               />
             </div>
           </div>
