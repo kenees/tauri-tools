@@ -26,6 +26,13 @@ const list = [
     icon: iter,
     title: 'Terminal',
     padding: 'p-[5px]'
+  },
+  {
+    id: 3,
+    path: '/ble',
+    icon: iter,
+    title: 'Ble',
+    padding: 'p-[5px]'
   }
 ];
 
