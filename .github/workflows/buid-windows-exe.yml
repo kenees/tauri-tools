@@ -28,8 +28,10 @@ jobs:
           npm install
           npm install -g @tauri-apps/cli
 
-      - name: 📦 Add Windows target for Rust
-        run: rustup target add x86_64-pc-windows-gnu
+      - name: 🛠️ Install MinGW toolchain (for Windows target)
+        run: |
+          sudo apt update
+          sudo apt install -y mingw-w64
 
       - name: 🔨 Build EXE for Windows
         run: npm run tauri build -- --target x86_64-pc-windows-gnu
