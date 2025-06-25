@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import JSONViewer from "react-json-view";
+// import JSONViewer from "react-json-view";
 import { addToast, Button, Textarea, Modal, ModalContent } from "@heroui/react";
 // import { invoke } from "@tauri-apps/api/core";
 import {
@@ -513,7 +513,7 @@ function TableModal({ data }: any) {
         </div>
         <div className="w-full h-[1px] bg-stone-300"></div>
         <div className="top-0 w-full min-h-10 " hidden={!!index}>
-          <JSONViewer
+          {/* <JSONViewer
             name={false}
             collapsed={false}
             indentWidth={4}
@@ -523,7 +523,7 @@ function TableModal({ data }: any) {
             displayObjectSize={false}
             displayDataTypes={false}
             enableClipboard={false}
-          />
+          /> */}
         </div>
         <div className="w-full min-h-10" hidden={!index}></div>
       </div>
