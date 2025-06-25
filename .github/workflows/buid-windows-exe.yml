@@ -28,17 +28,17 @@ jobs:
           npm install
           npm install -g @tauri-apps/cli
 
-      - name: 🛠️ Install MinGW toolchain (for Windows target)
+      - name: 🛠️ Install cross-compile tools
         run: |
           sudo apt update
-          sudo apt install -y mingw-w64
+          sudo apt install -y mingw-w64 nsis
 
-      - name: 🔨 Build EXE for Windows
+      - name: 🔨 Build Windows EXE
         run: npm run tauri build -- --target x86_64-pc-windows-gnu
         env:
           TAURI_BUILD_TARGET: x86_64-pc-windows-gnu
 
-      - name: 📤 Upload EXE artifact
+      - name: 📤 Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
