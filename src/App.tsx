@@ -6,8 +6,6 @@ import { ThemeProvider } from "next-themes"
 
 
 export default () => {
-  useEffect(() => {}, []);
-
   return (
     <HeroUIProvider>
       <ThemeProvider attribute="class" defaultTheme="dark">

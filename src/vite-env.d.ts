@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-svgr/client" />
 
-declare module '*.svg' {
-  import * as React from 'react';
+declare module "*.svg" {
+  import * as React from "react";
 
   // 定义支持任意属性的 SVG 组件
   export const ReactComponent: React.FC<
@@ -13,4 +13,9 @@ declare module '*.svg' {
 
   const src: string;
   export default src;
+}
+
+declare module "*.glsl" {
+  const content: string;
+  export default content;
 }

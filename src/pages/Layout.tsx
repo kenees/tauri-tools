@@ -64,7 +64,7 @@ export default () => {
           </ScrollShadow>
         </div>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 h-[100vh] overflow-scroll">
         <Outlet />
       </div>
     </div>

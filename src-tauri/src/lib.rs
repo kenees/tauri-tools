@@ -20,6 +20,8 @@ pub fn run() {
             logcat::list_devices,
             logcat::start_logcat,
             ble::scan_devices,
+            ble::connect_device,
+            // ble::disconnect_device,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
