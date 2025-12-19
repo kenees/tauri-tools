@@ -2,6 +2,15 @@ import * as THREE from "three";
 import Areas from "./Areas";
 import Floor from "./Floor";
 import gsap from "gsap";
+import Sounds from "./Sounds";
+import Objects from "./Objects";
+import Tiles from "./Tiles";
+import Controls from "./Controls";
+import Car from "./Car";
+import Materials from "./Materials";
+import Physics from "./Physics";
+import Shadows from "./Shadows";
+import IntroSection from "./sections/IntroSection";
 
 export default class World {
   config: any;
@@ -14,9 +23,21 @@ export default class World {
   renderer: any;
   debugFolder: any;
   container: THREE.Object3D<THREE.Object3DEventMap>;
-  areas: Areas | undefined;
+  areas?: Areas;
   startingScreen: any;
-  floor: Floor | undefined;
+  floor?: Floor;
+  sounds?: Sounds;
+  objects: Objects | undefined;
+  tiles?: Tiles;
+  sections: any | undefined;
+  reveal: any;
+  axis?: THREE.AxesHelper;
+  controls?: Controls;
+  car?: Car;
+  materials?: Materials;
+  passes: any;
+  physics?: Physics;
+  shadows?: Shadows;
 
   constructor(_options: any) {
     this.config = _options.config;
@@ -27,7 +48,7 @@ export default class World {
     this.camera = _options.camera;
     this.scene = _options.scene;
     this.renderer = _options.renderer;
-    // this.passes = _options.passes
+    this.passes = _options.passes;
 
     // Debug
     if (this.debug) {
@@ -39,17 +60,89 @@ export default class World {
     this.container = new THREE.Object3D(); // 将场景中所有的东西都加到这个容器内统一控制
     this.container.matrixAutoUpdate = false; // 关闭自动更新矩阵（会根据坐标，缩放，等自动更新），需要自己控制
 
-    // TODO
-    // this.setSounds();
-    // this.setControls();
+    // this.setAxes();
+    this.setSounds();
+    this.setControls();
     this.setFloor(); // 背景色
-    this.setAreas();
+    this.setAreas(); 
     this.setStartingScreen();
   }
 
-  start() {}
+  start() {
+    window.setTimeout(() => {
+      this.camera.pan.enable();
+    }, 2000);
 
-  setReveal() {}
+    this.setReveal();
+    this.setMaterials();
+    this.setShadows();
+    this.setPhysics();
+    this.setZones();
+    this.setObjects();
+    this.setCar();
+    this.areas!.car = this.car;
+    this.setTiles();
+    this.setWalls();
+    this.setSections();
+    this.setEasterEggs();
+  }
+
+  setReveal() {
+    this.reveal = {};
+    this.reveal.matcapsProgress = 0; // 元素加载进度
+    this.reveal.floorShadowsProgress = 0; // 地板阴影
+    this.reveal.previousMatcapsProgress = null;
+    this.reveal.previousFloorShadowsProgress = null;
+
+    // Go method
+    this.reveal.go = () => {
+      gsap.fromTo(this.reveal, { matcapsProgress: 0 }, { matcapsProgress: 1, duration: 3 });
+      gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 3, delay: 0.5 });
+      gsap.fromTo(this.shadows!, { alpha: 0 }, { alpha: 0.5, duration: 3, delay: 0.5 });
+
+      if (this.sections.intro) {
+        // 改变 arrows的透明度
+        gsap.fromTo(this.sections.intro.instructions.arrows.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.5 });
+        if (this.sections.intro.otherInstructions) {
+          gsap.fromTo(this.sections.intro.otherInstructions.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.75 });
+        }
+      }
+
+      // Car
+      //   this.physics?.car.chassis.body.sleep();
+      //   this.physics?.car.chassis.body.position.set(0, 0, 12);
+
+      // Sound
+      gsap.fromTo(this.sounds?.engine.volume, { master: 0 }, { master: 0.7, duration: 0.5, delay: 0.3, ease: "power2.in" });
+      window.setTimeout(() => {
+        this.sounds?.play("reveal");
+      }, 400);
+
+      // Controls
+      if (this.controls?.touch) {
+        window.setTimeout(() => {
+          this.controls?.touch.reveal();
+        }, 400);
+      }
+    };
+
+    // Time tick
+    this.time.on("tick", () => {
+      // Matcaps progress changed
+      if (this.reveal.matcapsProgress !== this.reveal.previousMatcapsProgress) {
+        // Update each material
+        for (const _materialKey in this.materials?.shades.items) {
+          const material = this.materials?.shades.items[_materialKey];
+          material.uniforms.uRevealProgress.value = this.reveal.matcapsProgress;
+        }
+
+        // Save
+        this.reveal.previousMatcapsProgress = this.reveal.matcapsProgress;
+      }
+
+      // Matcap progress
+    });
+  }
 
   setStartingScreen() {
     this.startingScreen = {};
@@ -98,6 +191,7 @@ export default class World {
 
     // Progress
     this.resources.on("progress", (_progress: number) => {
+      // Update area
       this.startingScreen.area.floorBorder.material.uniforms.uAlpha.value = 1;
       this.startingScreen.area.floorBorder.material.uniforms.uLoadProgress.value = _progress;
     });
@@ -117,17 +211,49 @@ export default class World {
 
     // On interact, reveal
     this.startingScreen.area.on("interact", () => {
-      //   this.startingScreen.area.deactivate();
+      this.startingScreen.area.deactivate();
+
+      // 隐藏进度条
+      gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 });
+      // 隐藏开始按钮
+      gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 });
+
+      this.start();
+
+      window.setTimeout(() => {
+        this.reveal.go();
+      }, 600);
     });
   }
 
-  setSounds() {}
+  setSounds() {
+    this.sounds = new Sounds({
+      debug: this.debugFolder,
+      time: this.time,
+    });
+  }
 
-  setAxes() {}
+  setAxes() {
+    this.axis = new THREE.AxesHelper(100);
+    this.container.add(this.axis);
+  }
 
-  setControls() {}
+  setControls() {
+    this.controls = new Controls({
+      config: this.config,
+      sizes: this.sizes,
+      time: this.time,
+      camera: this.camera,
+      sounds: this.sounds,
+    });
+  }
 
-  setMaterials() {}
+  setMaterials() {
+    this.materials = new Materials({
+      debug: this.debug,
+      resources: this.resources,
+    });
+  }
 
   setFloor() {
     this.floor = new Floor({
@@ -136,30 +262,114 @@ export default class World {
     this.container.add(this.floor.container);
   }
 
-  setShadows() {}
+  setShadows() {
+    this.shadows = new Shadows({
+      time: this.time,
+      debug: this.debugFolder,
+      renderer: this.renderer,
+      camera: this.camera,
+    });
+    this.container.add(this.shadows.container);
+  }
 
-  setPhysics() {}
+  setPhysics() {
+    this.physics = new Physics({
+      config: this.config,
+      debug: this.debug,
+      scene: this.scene,
+      time: this.time,
+      sizes: this.sizes,
+      controls: this.controls,
+      sounds: this.sounds,
+    });
+    this.container.add(this.physics.models.container);
+  }
 
   setZones() {}
 
   setAreas() {
     this.areas = new Areas({
       config: this.config,
-      time: this.time,
+      resources: this.resources,
+      debug: this.debug,
+      renderer: this.renderer,
       camera: this.camera,
+      car: this.car,
+      time: this.time,
+      sounds: this.sounds,
     });
     this.container.add(this.areas.container);
   }
 
-  setTiles() {}
+  setTiles() {
+    this.tiles = new Tiles({
+      resources: this.resources,
+      objects: this.objects,
+      debug: this.debug,
+    });
+  }
 
   setWalls() {}
 
-  setObjects() {}
+  setObjects() {
+    this.objects = new Objects({
+      time: this.time,
+      resources: this.resources,
+      materials: this.materials,
+      physics: this.physics,
+      shadows: this.shadows,
+      sounds: this.sounds,
+      debug: this.debugFolder,
+    });
+    this.container.add(this.objects.container);
+  }
 
-  setCar() {}
+  setCar() {
+    this.car = new Car({
+      time: this.time,
+      resources: this.resources,
+      object: this.objects,
+      physics: this.physics,
+      shadows: this.shadows,
+      materials: this.materials,
+      controls: this.controls,
+      sounds: this.sounds,
+      renderer: this.renderer,
+      camera: this.camera,
+      debug: this.debugFolder,
+      config: this.config,
+    });
+    this.container.add(this.car.container);
+  }
 
-  setSections() {}
+  // 场景中的东西
+  setSections() {
+    this.sections = {};
+
+    // Generic options
+    const options = {
+      config: this.config,
+      time: this.time,
+      resources: this.resources,
+      camera: this.camera,
+      passes: this.passes,
+      objects: this.objects,
+      areas: this.areas,
+      //   zones:
+      walls: {},
+      tiles: this.tiles,
+      debug: this.debugFolder,
+    };
+
+    // Intro
+    this.sections.intro = new IntroSection({
+      ...options,
+      x: 0,
+      y: 0,
+    });
+    // console.log("intro: ", this.sections.intro);
+    this.container.add(this.sections.intro.container);
+  }
 
   setEasterEggs() {}
 }

@@ -9,9 +9,10 @@ import Resources from "./Resources";
 import ThreejsJourney from "./ThreejsJourney";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import BlurPass from "./passes/Blur.ts";
+import GlowsPass from "./passes/Glows.ts";
 export default class Application {
   $canvas: any;
   time: Time;
@@ -60,8 +61,12 @@ export default class Application {
       "touchstart",
       () => {
         this.conifg.touch = true;
-        // this.world.controls.setTouch()
-        // this.setPasses.horizontalBlurPass.strength = 1
+        this.world.controls.setTouch();
+
+        this.passes.horizontalBlurPass.strength = 1;
+        this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0);
+        this.passes.verticalBlurPass.strength = 1;
+        this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength);
       },
       { once: true }
     ); // 只触发一次就会被卸载
@@ -116,10 +121,10 @@ export default class Application {
     this.scene?.add(this.camera.container);
 
     this.time.on("tick", () => {
-      // if (this.world && this.world.car && this.camera) {
-      //   this.camera.target.x = this.world.car.chassis.object.position.x;
-      //   this.camera.target.y = this.world.car.chassis.object.position.y;
-      // }
+      if (this.world && this.world.car && this.camera) {
+        this.camera.target.x = this.world.car.chassis.object.position.x;
+        this.camera.target.y = this.world.car.chassis.object.position.y;
+      }
     });
   }
 
@@ -140,14 +145,46 @@ export default class Application {
     console.log(this.camera);
     this.passes.renderPass = new RenderPass(this.scene!, this.camera.instance);
 
+    this.passes.horizontalBlurPass = new ShaderPass(BlurPass);
+    this.passes.horizontalBlurPass.strength = this.config.touch ? 0 : 1;
+    this.passes.horizontalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height);
+    this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0);
+
+    this.passes.verticalBlurPass = new ShaderPass(BlurPass);
+    this.passes.verticalBlurPass.strength = this.config.touch ? 0 : 1;
+    this.passes.verticalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height);
+    this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength);
+
+    this.passes.glowsPass = new ShaderPass(GlowsPass);
+    this.passes.glowsPass.color = "#ffcfe0";
+    this.passes.glowsPass.material.uniforms.uPosition.value = new THREE.Vector2(0, 0.25);
+    this.passes.glowsPass.material.uniforms.uRadius.value = 0.7;
+    this.passes.glowsPass.material.uniforms.uColor.value = new THREE.Color(this.passes.glowsPass.color);
+    this.passes.glowsPass.material.uniforms.uColor.value.convertLinearToSRGB();
+    this.passes.glowsPass.material.uniforms.uAlpha.value = 0.55;
+
     // Add passes
     this.passes.composer.addPass(this.passes.renderPass);
+    this.passes.composer.addPass(this.passes.horizontalBlurPass);
+    this.passes.composer.addPass(this.passes.verticalBlurPass);
+    this.passes.composer.addPass(this.passes.glowsPass);
 
     // Time tick
     this.time.on("tick", () => {
+      this.passes.horizontalBlurPass.enabled = this.passes.horizontalBlurPass.material.uniforms.uStrength.value.x > 0;
+      this.passes.verticalBlurPass.enabled = this.passes.verticalBlurPass.material.uniforms.uStrength.value.y > 0;
+
       // Renderer
       this.passes.composer.render();
       // this.renderer?.render(this.scene!, this.camera);
+    });
+
+    // Resize event
+    this.sizes.on("resize", () => {
+      this.renderer?.setSize(this.sizes.viewport.width, this.sizes.viewport.height);
+      this.passes.composer.setSize(this.sizes.viewport.width, this.sizes.viewport.height);
+      this.passes.horizontalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height);
+      this.passes.verticalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height);
     });
   }
 
@@ -160,7 +197,11 @@ export default class Application {
       debug: this.debug,
       resources: this.resources,
       time: this.time,
+      sizes: this.sizes,
       camera: this.camera,
+      scene: this.scene,
+      renderer: this.renderer,
+      passes: this.passes,
     });
     // console.log(this.world.container);
     this.scene?.add(this.world.container);
@@ -189,8 +230,8 @@ export default class Application {
     this.time.off("tick");
     this.sizes.off("resize");
 
-    // this.camera.orbitControls.dispose()
-    // this.renderer.dispose()
-    // this.debug.destroy()
+    this.camera.orbitControls.dispose();
+    this.renderer?.dispose();
+    this.debug?.destroy();
   }
 }

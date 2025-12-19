@@ -70,10 +70,10 @@ export default class Camera {
     };
 
     if (this.debug) {
-      this.debugFolder.add(this, "easing").set(0.0001).min(0).max(1).name("easing");
-      this.debugFolder.add(this.angle.value, "x").set(0.0001).min(-2).max(2).name("invertDirectionX").listen();
-      this.debugFolder.add(this.angle.value, "y").set(0.0001).min(-2).max(2).name("invertDirectionY").listen();
-      this.debugFolder.add(this.angle.value, "z").set(0.0001).min(-2).max(2).name("invertDirectionZ").listen();
+      this.debugFolder.add(this, "easing").step(0.0001).min(0).max(1).name("easing");
+      this.debugFolder.add(this.angle.value, "x").step(0.0001).min(-2).max(2).name("invertDirectionX").listen();
+      this.debugFolder.add(this.angle.value, "y").step(0.0001).min(-2).max(2).name("invertDirectionY").listen();
+      this.debugFolder.add(this.angle.value, "z").step(0.0001).min(-2).max(2).name("invertDirectionZ").listen();
     }
   }
 

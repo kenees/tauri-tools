@@ -8,11 +8,21 @@ export default class Areas {
   time: any;
   mouse: any;
   camera: any;
+  sounds: any;
+  resources: any;
+  car: any;
+  renderer: any;
+  debug: any;
   constructor(_options: any) {
     // Options
     this.config = _options.config;
-    this.time = _options.time;
+    this.resources = _options.resources;
+    this.car = _options.car;
+    this.sounds = _options.sounds;
+    this.renderer = _options.renderer;
     this.camera = _options.camera;
+    this.time = _options.time;
+    this.debug = _options.debug;
 
     // Set up
     this.items = [];
@@ -39,6 +49,12 @@ export default class Areas {
       this.mouse.coordinates.y = -(_event.clientY / window.innerHeight) * 2 + 1; // 修正为 1 0 -1
 
       this.mouse.needsUpdate = true;
+    });
+
+    window.addEventListener("mousedown", (_event) => {
+      if (this.mouse.currentArea) {
+        this.mouse.currentArea.interact(false);
+      }
     });
 
     this.time.on("tick", () => {
@@ -83,6 +99,7 @@ export default class Areas {
     const area = new Area({
       config: this.config,
       time: this.time,
+      sounds: this.sounds,
       ..._options,
     });
 

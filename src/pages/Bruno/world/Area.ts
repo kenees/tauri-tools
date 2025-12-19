@@ -19,6 +19,7 @@ export default class Area extends EventEmitter {
   floorBorder: any;
   hasKey: any;
   fence: any;
+  sounds: any;
 
   constructor(_options: any) {
     super();
@@ -28,6 +29,7 @@ export default class Area extends EventEmitter {
     this.time = _options.time;
     this.position = _options.position || new THREE.Vector3(0, 0, 0);
     this.halfExtents = _options.halfExtents;
+    this.sounds = _options.sounds;
 
     // Set up
     this.container = new THREE.Object3D();
@@ -63,6 +65,7 @@ export default class Area extends EventEmitter {
     }
   }
 
+  // 启动页面Loading & Staring 文字外边的边框
   setFloorBorder() {
     this.floorBorder = {};
 
@@ -78,6 +81,7 @@ export default class Area extends EventEmitter {
     this.container.add(this.floorBorder.mesh);
   }
 
+  // 启动页面围栏
   setFence() {
     // Set up
     this.fence = {};
@@ -105,9 +109,34 @@ export default class Area extends EventEmitter {
 
   setKey() {}
 
-  interact() {
-    console.log("interact...");
+  // 互动
+  interact(_showKey = true) {
+    console.log("interact...", this.active);
+    if (!this.active) {
+      return;
+    }
 
+    // Kill tweens
+    gsap.killTweensOf(this.fence.mesh.position);
+    gsap.killTweensOf(this.floorBorder.material.uniforms.uAlpha);
+    gsap.killTweensOf(this.fence.mesh.material.uniforms.uBorderAlpha);
+
+    // Animate
+    gsap.to(this.fence.mesh.position, {
+      z: 0,
+      duration: 0.05,
+      onComplete: () => {
+        // 悬浮边框碰底后再次上浮
+        gsap.to(this.fence.mesh.position, { z: 0.5, duration: 0.25, ease: "back.out(2)" });
+        // 悬浮边框碰到底的瞬间底部平面边框开始透明度 1 ～0.5
+        gsap.fromTo(this.floorBorder.material.uniforms.uAlpha, { value: 1 }, { value: 0.5, duration: 1.5 });
+        // 悬浮框的边框透明度 1 ～ 0.5
+        gsap.fromTo(this.fence.material.uniforms.uBorderAlpha, { value: 1 }, { value: 0.5, duration: 1.5 });
+      },
+    });
+
+    // Play Sound
+    this.sounds.play("uiArea");
     this.trigger("interact");
   }
 
@@ -138,7 +167,7 @@ export default class Area extends EventEmitter {
     this.mouseMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(this.halfExtents.x * 2, this.halfExtents.y * 2, 1, 1),
       new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }) // 透明材质，透明度； 因需特殊处理，会在非透明对象之后渲染
-      //   new THREE.MeshBasicMaterial({ color: "red" })
+      // new THREE.MeshBasicMaterial({ color: "red" })
     );
     this.mouseMesh.position.z = -0.01;
     this.mouseMesh.matrixAutoUpdate = false;
