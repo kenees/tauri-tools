@@ -1,156 +1,84 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { useState } from "react";
-import { HomeIcon, MagnifyingGlassIcon, CogIcon, PuzzlePieceIcon, QrCodeIcon, ChevronDownIcon, ChevronRightIcon, RectangleGroupIcon, EyeSlashIcon, CalendarIcon, TableCellsIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import { MagnifyingGlassIcon, ChevronDownIcon, ChevronRightIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useLanguage } from "../contexts/LanguageContext";
-import MarkdownIcon from "../assets/MarkdownPreview.svg";
-import EncodersIcon from "../assets/EncodersDecoders.svg";
-import Base64Image from "../assets/Base64ImageEncoderDecoder.svg";
-import Base64Text from "../assets/Base64EncoderDecoder.svg";
-import CertificateIcon from "../assets/CertificateEncoderDecoder.svg";
-import GzipIcon from "../assets/GZipEncoderDecoder.svg";
-import HtmlIcon from "../assets/HtmlEncoderDecoder.svg";
-import JwtIcon from "../assets/JwtDecoder.svg";
-import UrlIcon from "../assets/UrlEncoderDecoder.svg";
-import JsonFormatter from "../assets/JsonFormatter.svg";
-import RegexTester from "../assets/RegexTester.svg";
-import XmlIcon from "../assets/XmlFormatter.svg";
-import FormatterIcon from "../assets/Formatters.svg";
-import SqlIcon from "../assets/SqlFormatter.svg";
-import GeneratorsIcon from "../assets/Generators.svg";
-import HashGenerator from "../assets/HashGenerator.svg";
-import LoremLpsum from "../assets/LoremIpsumGenerator.svg";
-import UuidGenerator from "../assets/UuidGenerator.svg";
-import GraphicToolsIcon from "../assets/GraphicTools.svg";
-import ImageConverterIcon from "../assets/ImageConverter.svg";
-import TextIcon from "../assets/TextTools.svg";
-import StringEscapeUnescapeIcon from "../assets/StringEscapeUnescape.svg";
-import TextDiffIcon from "../assets/TextDiff.svg";
-import StringUtilitiesIcon from "../assets/StringUtilities.svg";
-import ListCompareIcon from "../assets/ListCompare.svg";
-import CoverterIcon from "../assets/Converters.svg";
-import CronParserIcon from "../assets/CronParser.svg";
-import NumberBaseConverter from "../assets/NumberBaseConverter.svg";
-
-interface MenuItem {
-  id: string;
-  labelKey: string;
-  icon: React.ReactNode;
-  path?: string;
-  children?: MenuItem[];
-}
+import { menuItems, MenuItem, getAllTools } from "../data/menuItems";
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(["converters", "encoders-decoders"]));
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(["converters", "encoders-decoders", "favorites"]));
   const [searchQuery, setSearchQuery] = useState("");
+  const [favoriteTools, setFavoriteTools] = useState<string[]>([]);
+  const [favoriteMenuItems, setFavoriteMenuItems] = useState<MenuItem[]>([]);
 
-  const menuItems: MenuItem[] = [
-    {
-      id: "all-tools",
-      labelKey: "common.allTools",
-      icon: <HomeIcon className="w-5 h-5" />,
-      path: "/",
-    },
-    {
-      id: "settings",
-      labelKey: "common.settings",
-      icon: <CogIcon className="w-5 h-5" />,
-      path: "/settings",
-    },
-    {
-      id: "manage-extensions",
-      labelKey: "common.manageExtensions",
-      icon: <PuzzlePieceIcon className="w-5 h-5" />,
-      path: "/extensions",
-    },
-    {
-      id: "markdown-preview",
-      labelKey: "common.markdownPreview",
-      icon: <MarkdownIcon />,
-      path: "/markdown",
-    },
-    {
-      id: "encoders-decoders",
-      labelKey: "common.encodersDecoders",
-      icon: <EncodersIcon />,
-      children: [
-        { id: "base64-image", labelKey: "tools.base64Image.title", icon: <Base64Image />, path: "/tools/base64-image" },
-        { id: "base64-text", labelKey: "tools.base64Text.title", icon: <Base64Text />, path: "/tools/base64-text" },
-        { id: "certificate", labelKey: "tools.certificate.title", icon: <CertificateIcon />, path: "/tools/certificate" },
-        { id: "gzip", labelKey: "tools.gzip.title", icon: <GzipIcon />, path: "/tools/gzip" },
-        { id: "html", labelKey: "tools.html.title", icon: <HtmlIcon />, path: "/tools/html" },
-        { id: "jwt", labelKey: "tools.jwt.title", icon: <JwtIcon />, path: "/tools/jwt" },
-        { id: "qrcode", labelKey: "tools.qrCode.title", icon: <QrCodeIcon className="w-4 h-4" />, path: "/tools/qrcode" },
-        { id: "url", labelKey: "tools.url.title", icon: <UrlIcon />, path: "/tools/url" },
-      ],
-    },
-    {
-      id: "test-tools",
-      labelKey: "common.testTool",
-      icon: <RectangleGroupIcon className="w-4 h-4" />,
-      children: [
-        { id: "json-path-tester", labelKey: "tools.jsonPathTester.title", icon: <JsonFormatter />, path: "/tools/json-path-tester" },
-        { id: "regex", labelKey: "tools.regexTester.title", icon: <RegexTester />, path: "/tools/text-diff" },
-        { id: "testers-xml", labelKey: "tools.xmlTester.title", icon: <XmlIcon />, path: "/tools/text-case-converter" },
-      ],
-    },
-    {
-      id: "formatter",
-      labelKey: "common.formatter",
-      icon: <FormatterIcon />,
-      children: [
-        { id: "json-formatter", labelKey: "tools.jsonFormatter.title", icon: <JsonFormatter />, path: "/tools/json-formatter" },
-        { id: "sql-formatter", labelKey: "tools.sqlFormatter.title", icon: <SqlIcon />, path: "/tools/sql-formatter" },
-        { id: "xml-formatter", labelKey: "tools.xmlFormatter.title", icon: <XmlIcon />, path: "/tools/xml-formatter" },
-      ],
-    },
-    {
-      id: "generators",
-      labelKey: "common.generators",
-      icon: <GeneratorsIcon />,
-      children: [
-        { id: "hash-generator", labelKey: "tools.hashGenerator.title", icon: <HashGenerator />, path: "/tools/hash-generator" },
-        { id: "lorem-lpsum", labelKey: "tools.loremLpsum.title", icon: <LoremLpsum />, path: "/tools/lorem-lpsum" },
-        { id: "password-generator", labelKey: "tools.passwordGenerator.title", icon: <MarkdownIcon />, path: "/tools/password-generator" },
-        { id: "uuid-generator", labelKey: "tools.uuidGenerator.title", icon: <UuidGenerator />, path: "/tools/uuid-generator" },
-      ],
-    },
-    {
-      id: "graphics",
-      labelKey: "common.graphics",
-      icon: <GraphicToolsIcon />,
-      children: [
-        { id: "color-blindness-simulator", labelKey: "tools.eyeDropper.title", icon: <EyeSlashIcon className="w-4 h-4" />, path: "/tools/eye-dropper" },
-        { id: "image-converter", labelKey: "tools.imageResizer.title", icon: <ImageConverterIcon />, path: "/tools/image-resizer" },
-      ],
-    },
-    {
-      id: "text-tools",
-      labelKey: "common.textConvertersTools",
-      icon: <TextIcon />,
-      children: [
-        { id: "text-escape", labelKey: "tools.escapeUnescape.title", icon: <StringEscapeUnescapeIcon />, path: "/tools/base64-converter" },
-        { id: "text-list-compare", labelKey: "tools.listCompare.title", icon: <ListCompareIcon />, path: "/tools/url-encoder-decoder" },
-        { id: "text-tools-markdown", labelKey: "tools.markdownPreview.title", icon: <MarkdownIcon />, path: "/tools/html-encoder-decoder" },
-        { id: "text-tools-analyze", labelKey: "tools.textCaseConverter.title", icon: <StringUtilitiesIcon />, path: "/tools/html-encoder-decoder" },
-        { id: "text-tools-diff", labelKey: "tools.textDiff.title", icon: <TextDiffIcon />, path: "/tools/html-encoder-decoder" },
-      ],
-    },
-    {
-      id: "converters",
-      labelKey: "common.converters",
-      icon: <CoverterIcon />,
-      children: [
-        { id: "cron-parser", labelKey: "tools.cronParser.title", icon: <CronParserIcon />, path: "/tools/csv-to-json" },
-        { id: "date", labelKey: "tools.date.title", icon: <CalendarIcon className="w-4 h-4" />, path: "/tools/csv-to-json" },
-        { id: "json-to-table", labelKey: "tools.jsonToTable.title", icon: <TableCellsIcon className="w-4 h-4" />, path: "/tools/json-to-csv" },
-        { id: "json-to-yaml", labelKey: "tools.jsonToYaml.title", icon: <CoverterIcon />, path: "/tools/json-to-xml" },
-        { id: "number-base", labelKey: "tools.numberBase.title", icon: <NumberBaseConverter />, path: "/tools/xml-to-json" },
-      ],
-    },
-  ];
+  useEffect(() => {
+    // 从localStorage获取收藏的工具
+    const updateFavoriteTools = () => {
+      const savedFavoriteTools = localStorage.getItem("favoriteTools");
+      if (savedFavoriteTools) {
+        const favoriteIds = JSON.parse(savedFavoriteTools);
+        setFavoriteTools(favoriteIds);
+        
+        // 获取所有工具并筛选出收藏的工具
+        const allTools = getAllTools();
+        const favorites = allTools.filter(tool => favoriteIds.includes(tool.id));
+        setFavoriteMenuItems(favorites);
+      } else {
+        setFavoriteTools([]);
+        setFavoriteMenuItems([]);
+      }
+    };
+
+    updateFavoriteTools();
+
+    // 监听storage变化，实现跨组件同步
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "favoriteTools") {
+        updateFavoriteTools();
+      }
+    };
+
+    // 同一个页面的localStorage变化不会触发storage事件，所以需要自定义事件
+    const handleCustomStorageChange = () => {
+      updateFavoriteTools();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("favoriteToolsChanged", handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("favoriteToolsChanged", handleCustomStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    // 当收藏工具列表更新时，更新菜单项
+    const allTools = getAllTools();
+    const favorites = allTools.filter(tool => favoriteTools.includes(tool.id));
+    setFavoriteMenuItems(favorites);
+  }, [favoriteTools]);
+
+  const toggleFavorite = (toolId: string) => {
+    let newFavorites;
+    if (favoriteTools.includes(toolId)) {
+      newFavorites = favoriteTools.filter(id => id !== toolId);
+    } else {
+      newFavorites = [...favoriteTools, toolId];
+    }
+    setFavoriteTools(newFavorites);
+    localStorage.setItem("favoriteTools", JSON.stringify(newFavorites));
+    
+    // 触发自定义事件以通知其他组件
+    window.dispatchEvent(new CustomEvent("favoriteToolsChanged", { detail: newFavorites }));
+  };
+
+  const isFavorite = (toolId: string) => {
+    return favoriteTools.includes(toolId);
+  };
 
   const getLabel = (labelKey: string) => {
     const keys = labelKey.split(".");
@@ -180,10 +108,11 @@ export default function Layout() {
     }
   };
 
-  const renderMenuItem = (item: MenuItem, level: number = 0) => {
+  const renderMenuItem = (item: MenuItem, level: number = 0, isFavoriteChild: boolean = false) => {
     const isExpanded = expandedItems.has(item.id);
     const isSelected = location.pathname === item.path;
     const hasChildren = item.children && item.children.length > 0;
+    const showFavoriteButton = !isFavoriteChild && item.path && item.titleKey && item.descriptionKey; // 收藏夹中的子项不显示收藏按钮
 
     return (
       <div key={item.id}>
@@ -194,9 +123,30 @@ export default function Layout() {
         >
           {item.icon}
           <span className="flex-1 text-sm">{getLabel(item.labelKey)}</span>
-          {hasChildren && <span className="text-xs">{isExpanded ? <ChevronDownIcon className="w-4 h-4" /> : <ChevronRightIcon className="w-4 h-4" />}</span>}
+          <div className="flex items-center gap-1">
+            {showFavoriteButton && (
+              <button
+                className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(item.id);
+                }}
+              >
+                {isFavorite(item.id) ? (
+                  <HeartSolidIcon className="w-4 h-4 text-red-500" />
+                ) : (
+                  <HeartIcon className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-red-500" />
+                )}
+              </button>
+            )}
+            {hasChildren && <span className="text-xs">{isExpanded ? <ChevronDownIcon className="w-4 h-4" /> : <ChevronRightIcon className="w-4 h-4" />}</span>}
+          </div>
         </div>
-        {hasChildren && isExpanded && <div className="mt-1">{item.children!.map((child) => renderMenuItem(child, level + 1))}</div>}
+        {hasChildren && isExpanded && (
+          <div className="mt-1">
+            {item.children!.map((child) => renderMenuItem(child, level + 1, item.id === "favorites"))}
+          </div>
+        )}
       </div>
     );
   };
@@ -227,7 +177,22 @@ export default function Layout() {
         </div>
 
         {/* Navigation Menu */}
-        <div className="flex-1 overflow-y-auto p-2">{menuItems.map((item) => renderMenuItem(item))}</div>
+        <div className="flex-1 overflow-y-auto p-2">
+          {/* 收藏夹目录 */}
+          {favoriteMenuItems.length > 0 && (
+            <div className="mb-2">
+              {renderMenuItem({
+                id: "favorites",
+                labelKey: "common.favorites",
+                icon: <HeartIcon className="w-5 h-5" />,
+                children: favoriteMenuItems
+              }, 0)}
+            </div>
+          )}
+          
+          {/* 其他菜单项 */}
+          {menuItems.map((item) => renderMenuItem(item))}
+        </div>
 
         {/* Bottom Menu Items */}
         <div className="p-2 border-t border-gray-300 dark:border-gray-700">{menuItems.slice(1, 3).map((item) => renderMenuItem(item))}</div>

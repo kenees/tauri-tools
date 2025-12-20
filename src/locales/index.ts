@@ -4,6 +4,7 @@ export interface Translation {
     settings: string;
     allTools: string;
     recents: string;
+    favorites: string;
     manageExtensions: string;
     markdownPreview: string;
     converters: string;
@@ -192,6 +193,7 @@ export const zhCN: Translation = {
     settings: "设置",
     allTools: "所有工具",
     recents: "最近使用",
+    favorites: "收藏夹",
     manageExtensions: "管理扩展",
     markdownPreview: "Markdown 预览",
     converters: "转换器",
@@ -386,6 +388,7 @@ export const enUS: Translation = {
     settings: "Settings",
     allTools: "All tools",
     recents: "Recents",
+    favorites: "Favorites",
     manageExtensions: "Manage extensions",
     markdownPreview: "Markdown Preview",
     converters: "Converters",
