@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tauri App</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+      }
+      
+      .splash-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      
+      .logo {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite ease-in-out;
+      }
+      
+      .loading-text {
+        color: #ffffff;
+        font-size: 18px;
+        margin-top: 20px;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      }
+      
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #ffffff;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin-top: 20px;
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="splash-container">
+      <img src="https://cdn.iconscout.com/icon/free/png-256/free-tauri-3627344-3029875.png" alt="Tauri Logo" class="logo" />
+      <div class="loading-text">正在启动应用...</div>
+      <div class="spinner"></div>
+    </div>
+    
+    <script>
+      // 当主应用准备就绪时，关闭启动页面
+      window.addEventListener('DOMContentLoaded', () => {
+        // 模拟加载时间，实际应用中应该由主应用通知
+        setTimeout(() => {
+          // 这里不需要手动关闭，Tauri会在主应用准备好后自动处理
+        }, 3000);
+      });
+    </script>
+  </body>
+</html>

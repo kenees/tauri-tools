@@ -1,21 +1,18 @@
-import { useEffect } from "react";
-import Store from "./store";
 import RouteComponents from "./routes";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
-import { ThemeProvider } from "next-themes"
+import { HeroUIProvider } from "@heroui/react";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
-
-export default () => {
+export default function App() {
   return (
     <HeroUIProvider>
-      <ThemeProvider attribute="class" defaultTheme="dark">
-        <main className="text-foreground bg-background absolute w-full h-full">
-          <ToastProvider />
-          <Store>
+      <ThemeProvider>
+        <LanguageProvider>
+          <div className="text-foreground bg-background w-full h-full">
             <RouteComponents />
-          </Store>
-        </main>
+          </div>
+        </LanguageProvider>
       </ThemeProvider>
     </HeroUIProvider>
   );
-};
+}
