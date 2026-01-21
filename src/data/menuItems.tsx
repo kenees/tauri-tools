@@ -76,12 +76,12 @@ export const menuItems: MenuItem[] = [
     children: [
       { id: "base64-image", labelKey: "tools.base64Image.title", icon: <Base64Image />, path: "/tools/base64-image", titleKey: "tools.base64Image.title", descriptionKey: "tools.base64Image.description" },
       { id: "base64-text", labelKey: "tools.base64Text.title", icon: <Base64Text />, path: "/tools/base64-text", titleKey: "tools.base64Text.title", descriptionKey: "tools.base64Text.description" },
-      { id: "certificate", labelKey: "tools.certificate.title", icon: <CertificateIcon />, path: "/tools/certificate", titleKey: "tools.certificate.title", descriptionKey: "tools.certificate.description" },
-      { id: "gzip", labelKey: "tools.gzip.title", icon: <GzipIcon />, path: "/tools/gzip", titleKey: "tools.gzip.title", descriptionKey: "tools.gzip.description" },
-      { id: "html", labelKey: "tools.html.title", icon: <HtmlIcon />, path: "/tools/html", titleKey: "tools.html.title", descriptionKey: "tools.html.description" },
+      // { id: "certificate", labelKey: "tools.certificate.title", icon: <CertificateIcon />, path: "/tools/certificate", titleKey: "tools.certificate.title", descriptionKey: "tools.certificate.description" },
+      // { id: "gzip", labelKey: "tools.gzip.title", icon: <GzipIcon />, path: "/tools/gzip", titleKey: "tools.gzip.title", descriptionKey: "tools.gzip.description" },
+      { id: "html", labelKey: "tools.html.title", icon: <HtmlIcon />, path: "/tools/html-encoder", titleKey: "tools.html.title", descriptionKey: "tools.html.description" },
       { id: "jwt", labelKey: "tools.jwt.title", icon: <JwtIcon />, path: "/tools/jwt", titleKey: "tools.jwt.title", descriptionKey: "tools.jwt.description" },
       { id: "qrcode", labelKey: "tools.qrCode.title", icon: <QrCodeIcon className="w-4 h-4" />, path: "/tools/qrcode", titleKey: "tools.qrCode.title", descriptionKey: "tools.qrCode.description" },
-      { id: "url", labelKey: "tools.url.title", icon: <UrlIcon />, path: "/tools/url", titleKey: "tools.url.title", descriptionKey: "tools.url.description" },
+      // { id: "url", labelKey: "tools.url.title", icon: <UrlIcon />, path: "/tools/url", titleKey: "tools.url.title", descriptionKey: "tools.url.description" },
     ],
   },
   {
@@ -144,8 +144,8 @@ export const menuItems: MenuItem[] = [
       { id: "cron-parser", labelKey: "tools.cronParser.title", icon: <CronParserIcon />, path: "/tools/csv-to-json", titleKey: "tools.cronParser.title", descriptionKey: "tools.cronParser.description" },
       { id: "date", labelKey: "tools.date.title", icon: <CalendarIcon className="w-4 h-4" />, path: "/tools/csv-to-json", titleKey: "tools.date.title", descriptionKey: "tools.date.description" },
       { id: "json-to-table", labelKey: "tools.jsonToTable.title", icon: <TableCellsIcon className="w-4 h-4" />, path: "/tools/json-to-csv", titleKey: "tools.jsonToTable.title", descriptionKey: "tools.jsonToTable.description" },
-      { id: "json-to-yaml", labelKey: "tools.jsonToYaml.title", icon: <CoverterIcon />, path: "/tools/json-to-xml", titleKey: "tools.jsonToYaml.title", descriptionKey: "tools.jsonToYaml.description" },
-      { id: "number-base", labelKey: "tools.numberBase.title", icon: <NumberBaseConverter />, path: "/tools/xml-to-json", titleKey: "tools.numberBase.title", descriptionKey: "tools.numberBase.description" },
+      { id: "json-to-yaml", labelKey: "tools.jsonToYaml.title", icon: <CoverterIcon />, path: "/tools/json-yaml-converter", titleKey: "tools.jsonToYaml.title", descriptionKey: "tools.jsonToYaml.description" },
+      { id: "number-base", labelKey: "tools.numberBase.title", icon: <NumberBaseConverter />, path: "/tools/number-base-converter", titleKey: "tools.numberBase.title", descriptionKey: "tools.numberBase.description" },
     ],
   },
 ];

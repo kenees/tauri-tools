@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { MagnifyingGlassIcon, ChevronDownIcon, ChevronRightIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useFavorites } from "../hooks/useFavorites";
 import { menuItems, MenuItem, getAllTools } from "../data/menuItems";
 
 export default function Layout() {
@@ -11,49 +12,8 @@ export default function Layout() {
   const { t } = useLanguage();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(["converters", "encoders-decoders", "favorites"]));
   const [searchQuery, setSearchQuery] = useState("");
-  const [favoriteTools, setFavoriteTools] = useState<string[]>([]);
+  const { favoriteTools, isFavorite, toggleFavorite } = useFavorites();
   const [favoriteMenuItems, setFavoriteMenuItems] = useState<MenuItem[]>([]);
-
-  useEffect(() => {
-    // 从localStorage获取收藏的工具
-    const updateFavoriteTools = () => {
-      const savedFavoriteTools = localStorage.getItem("favoriteTools");
-      if (savedFavoriteTools) {
-        const favoriteIds = JSON.parse(savedFavoriteTools);
-        setFavoriteTools(favoriteIds);
-        
-        // 获取所有工具并筛选出收藏的工具
-        const allTools = getAllTools();
-        const favorites = allTools.filter(tool => favoriteIds.includes(tool.id));
-        setFavoriteMenuItems(favorites);
-      } else {
-        setFavoriteTools([]);
-        setFavoriteMenuItems([]);
-      }
-    };
-
-    updateFavoriteTools();
-
-    // 监听storage变化，实现跨组件同步
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "favoriteTools") {
-        updateFavoriteTools();
-      }
-    };
-
-    // 同一个页面的localStorage变化不会触发storage事件，所以需要自定义事件
-    const handleCustomStorageChange = () => {
-      updateFavoriteTools();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("favoriteToolsChanged", handleCustomStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("favoriteToolsChanged", handleCustomStorageChange);
-    };
-  }, []);
 
   useEffect(() => {
     // 当收藏工具列表更新时，更新菜单项
@@ -61,24 +21,6 @@ export default function Layout() {
     const favorites = allTools.filter(tool => favoriteTools.includes(tool.id));
     setFavoriteMenuItems(favorites);
   }, [favoriteTools]);
-
-  const toggleFavorite = (toolId: string) => {
-    let newFavorites;
-    if (favoriteTools.includes(toolId)) {
-      newFavorites = favoriteTools.filter(id => id !== toolId);
-    } else {
-      newFavorites = [...favoriteTools, toolId];
-    }
-    setFavoriteTools(newFavorites);
-    localStorage.setItem("favoriteTools", JSON.stringify(newFavorites));
-    
-    // 触发自定义事件以通知其他组件
-    window.dispatchEvent(new CustomEvent("favoriteToolsChanged", { detail: newFavorites }));
-  };
-
-  const isFavorite = (toolId: string) => {
-    return favoriteTools.includes(toolId);
-  };
 
   const getLabel = (labelKey: string) => {
     const keys = labelKey.split(".");

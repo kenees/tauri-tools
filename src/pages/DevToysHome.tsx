@@ -5,6 +5,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { getAllTools } from "../data/menuItems";
+import { useFavorites } from "../hooks/useFavorites";
 
 interface Tool {
   id: string;
@@ -20,6 +21,7 @@ export default function DevToysHome() {
   const [recentTools, setRecentTools] = useState<Tool[]>([]);
   const [favoriteTools, setFavoriteTools] = useState<Tool[]>([]);
   const [allTools, setAllTools] = useState<Tool[]>([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     // 获取所有工具数据
@@ -105,27 +107,21 @@ export default function DevToysHome() {
     localStorage.setItem("recentTools", JSON.stringify(newRecentTools.map((t) => t.id)));
   };
 
-  const toggleFavorite = (e: React.MouseEvent, tool: Tool) => {
+  const handleToggleFavorite = (e: React.MouseEvent, tool: Tool) => {
     e.stopPropagation();
-    const isFavorite = favoriteTools.some((t) => t.id === tool.id);
+    toggleFavorite(tool.id);
+    
+    // 更新本地状态
+    const isToolFavorite = isFavorite(tool.id);
     let newFavorites;
 
-    if (isFavorite) {
+    if (isToolFavorite) {
       newFavorites = favoriteTools.filter((t) => t.id !== tool.id);
     } else {
       newFavorites = [...favoriteTools, tool];
     }
 
     setFavoriteTools(newFavorites);
-    const favoriteIds = newFavorites.map((t) => t.id);
-    localStorage.setItem("favoriteTools", JSON.stringify(favoriteIds));
-
-    // 触发自定义事件以通知其他组件
-    window.dispatchEvent(new CustomEvent("favoriteToolsChanged", { detail: favoriteIds }));
-  };
-
-  const isFavorite = (toolId: string) => {
-    return favoriteTools.some((t) => t.id === toolId);
   };
 
   return (
@@ -144,7 +140,7 @@ export default function DevToysHome() {
             {recentTools.map((tool) => (
               <div key={tool.id} className="relative">
                 <ToolCard title={tool.title} description={tool.description} icon={tool.icon} onClick={() => handleToolClick(tool)} />
-                <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => toggleFavorite(e, tool)}>
+                <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => handleToggleFavorite(e, tool)}>
                   {isFavorite(tool.id) ? <HeartSolidIcon className="w-4 h-4 text-red-500" /> : <HeartIcon className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-red-500" />}
                 </button>
               </div>
@@ -161,7 +157,7 @@ export default function DevToysHome() {
             {favoriteTools.map((tool) => (
               <div key={tool.id} className="relative">
                 <ToolCard title={tool.title} description={tool.description} icon={tool.icon} onClick={() => handleToolClick(tool)} />
-                <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => toggleFavorite(e, tool)}>
+                <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => handleToggleFavorite(e, tool)}>
                   <HeartSolidIcon className="w-4 h-4 text-red-500" />
                 </button>
               </div>
@@ -180,7 +176,7 @@ export default function DevToysHome() {
           {allTools.map((tool) => (
             <div key={tool.id} className="relative">
               <ToolCard title={tool.title} description={tool.description} icon={tool.icon} onClick={() => handleToolClick(tool)} />
-              <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => toggleFavorite(e, tool)}>
+              <button className="absolute top-2 right-2 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={(e) => handleToggleFavorite(e, tool)}>
                 {isFavorite(tool.id) ? <HeartSolidIcon className="w-4 h-4 text-red-500" /> : <HeartIcon className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-red-500" />}
               </button>
             </div>

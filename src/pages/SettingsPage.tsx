@@ -34,7 +34,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-6">
+    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-6 h-[100vh]">
       {/* 标题 */}
       <h1 className="text-2xl font-bold mb-8">{t.settings.title}</h1>
 

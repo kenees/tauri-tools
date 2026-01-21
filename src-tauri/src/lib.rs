@@ -1,5 +1,7 @@
+mod base64;
 mod ble;
 mod jwt;
+mod jwt_encoder;
 mod logcat;
 
 use tauri::Manager;
@@ -37,6 +39,16 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             greet,
+            base64::encode_base64_text,
+            base64::decode_base64_text,
+            base64::validate_base64_image,
+            base64::get_image_info,
+            jwt_encoder::decode_jwt_token,
+            jwt_encoder::encode_jwt_token,
+            jwt_encoder::validate_jwt_token,
+            jwt_encoder::decode_jwt_token_generic,
+            jwt_encoder::create_demo_jwt_token,
+            jwt_encoder::encode_hs256_token,
             jwt::encode_jwt,
             jwt::decode_jwt,
             logcat::list_devices,
